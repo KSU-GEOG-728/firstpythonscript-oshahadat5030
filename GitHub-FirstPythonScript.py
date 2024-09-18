@@ -22,14 +22,16 @@ arcpy.env.workspace = "D:\\Fall 24\\Geog 728\\GitHub-FirstPythonScript\\GitHub-F
 #perform geoprocessing
 
 #Step 1: Buffer the Flint Hills ecoregion by 10 kilometers
-arcpy.management.SelectLayerByAttribute('ks_ecoregions', 'NEW_SELECTION', "US_L3NAME ='Flint Hills' ")
-arcpy.analysis.Buffer('ks_ecoregions', 'outBuff', '10 kilometers')
+#Need to save result as a result object otherwise the all ecoregions will be buffered in the next line
+selectRegion = arcpy.management.SelectLayerByAttribute('ks_ecoregions', 'NEW_SELECTION', "US_L3NAME ='Flint Hills' ")
+arcpy.analysis.Buffer(selectRegion, 'outBuff', '10 kilometers')
 
 # Step 2: Clip major rivers in Kansas using the buffered boundary
 arcpy.analysis.Clip('ks_major_rivers', 'outBuff', 'outClip')
 
 # Step-3: Add a new field to store stream lengths in miles
-arcpy.management.AddField(outClip, 'StreamLengthMiles', 'DOUBLE')
+# Missing quotation marks around outClip - this is a dataset and not a variable
+arcpy.management.AddField('outClip', 'StreamLengthMiles', 'DOUBLE')
 arcpy.management.CalculateGeometryAttributes(
     'outClip',
     [['StreamLengthMiles', 'LENGTH']],
